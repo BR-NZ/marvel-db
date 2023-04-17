@@ -5,41 +5,72 @@ import Spinner from '../spinner/Spinner';
 import './charList.scss';
 
 class CharList extends Component {
-    constructor(props) {
-        super(props);
-        this.limit = 9;
-        this.current = 210;
-    }
-
     state = {
         charList: [],
         loading: true,
-        error: false
+        loadingNew: false,
+        error: false,
+        offset: 210, // 1550 - end
+        offsetTo: localStorage.getItem('offsetTo') ? +localStorage.getItem('offsetTo') : this.state.offset,
+        limit: 9,
+        ended: false
     }
 
     marvelService = new MarvelService()
 
     componentDidMount() {
-        this.loadCharList(this.limit, this.current);
+        this.onRequest(this.state.offset, +this.state.offsetTo);
+        window.addEventListener('scroll', this.onScrollEnd);
     }
 
-    loadCharList = async (offset, limit) => {
+    componentWillUnmount() {
+        window.removeEventListener('scroll', this.onScrollEnd);
+    }
+
+    onRequest = async (offset, limit) => {
+        this.loadingList();
         this.marvelService.getAllCharacters(offset, limit)
-            .then(res => {
-                this.setState({
-                    charList: res
-                });
-            })
+            .then(this.loadedList)
             .catch(this.onError);
     }
+    loadingList = () => {
+        this.setState({
+            loadingNew: true
+        });
+    }
 
-    loadNextPage = () => {
-        this.current += this.limit;
-        this.loadCharList(this.limit, this.current);
+    loadedList = (newChars) => {
+        let ended = false;
+        if (newChars.length < this.state.limit) ended = true;
+
+        this.setState(({ charList, offset, limit }) => {
+            let offsetTo = localStorage.getItem('offsetTo') ? +localStorage.getItem('offsetTo') : offset;
+            localStorage.setItem('offsetTo', offsetTo + limit);
+
+            return {
+                charList: [...charList, ...newChars],
+                loading: false,
+                loadingNew: false,
+                offset: offset + limit,
+                offsetTo: localStorage.getItem('offsetTo'),
+                ended: ended
+            }
+        });
+    }
+
+    onLoad = () => {
+        this.setState({ loadingNew: true });
+        this.onRequest(this.state.offset);
+    }
+
+    onScrollEnd = () => {
+        if (document.documentElement.scrollHeight === document.documentElement.clientHeight + window.pageYOffset) {
+            this.onRequest(this.state.offset);
+        }
     }
 
     onError = () => {
-        this.setState({ 
+        this.setState({
             error: true,
             loading: false
         });
@@ -49,7 +80,7 @@ class CharList extends Component {
         const items = arr.map(item => {
             const clazz = item.active ? 'char__item_selected' : '';
             return (
-                <li className={`char__item ${clazz}`} onClick={()=>this.props.onCharSelected(item.id)} key={item.id}>
+                <li className={`char__item ${clazz}`} onClick={() => this.props.onCharSelected(item.id)} key={item.id}>
                     <img src={item.thumbnail} alt={item.name} />
                     <div className="char__name">{item.name}</div>
                 </li>
@@ -64,7 +95,7 @@ class CharList extends Component {
     }
 
     render() {
-        const { charList, loading, error } = this.state;
+        const { charList, loading, loadingNew, error, ended } = this.state;
 
         const items = this.renderItems(charList);
         const errorMessage = error ? <ErrorMessage /> : null;
@@ -72,8 +103,8 @@ class CharList extends Component {
 
         return (
             <div className="char__list">
-                { items || spinner || errorMessage }
-                <button className="button button__main button__long" onClick={this.loadNextPage}>
+                {items || spinner || errorMessage}
+                <button className="button button__main button__long" style={{ 'display': ended ? 'none' : 'block' }} disabled={loadingNew} onClick={this.onLoad}>
                     <div className="inner">load more</div>
                 </button>
             </div>
