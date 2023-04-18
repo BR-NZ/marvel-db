@@ -5,21 +5,29 @@ import Spinner from '../spinner/Spinner';
 import './charList.scss';
 
 class CharList extends Component {
+    marvelService = new MarvelService()
+
     state = {
         charList: [],
         loading: true,
         loadingNew: false,
         error: false,
-        offset: 210, // 1550 - end
-        offsetTo: localStorage.getItem('offsetTo') ? +localStorage.getItem('offsetTo') : this.state.offset,
+        offset: this.marvelService._baseOffset, // 1550 - end
+        offsetNew: localStorage.getItem('offsetNew') ? +localStorage.getItem('offsetNew') : this.marvelService._baseOffset,
         limit: 9,
         ended: false
     }
 
-    marvelService = new MarvelService()
-
     componentDidMount() {
-        this.onRequest(this.state.offset, +this.state.offsetTo);
+        const { offset, limit } = this.state;
+
+        const offsetNew = localStorage.getItem('offsetNew') ? +localStorage.getItem('offsetNew') : offset;
+        const limitNew = (offsetNew - offset) ? (offsetNew - offset) : limit;
+        
+        console.log('Грузим с ' + this.state.offset);
+        console.log('Грузим элементов ' + limitNew + ' ' + typeof limitNew);
+
+        this.onRequest(this.state.offset, limitNew);
         window.addEventListener('scroll', this.onScrollEnd);
     }
 
@@ -29,6 +37,8 @@ class CharList extends Component {
 
     onRequest = async (offset, limit) => {
         this.loadingList();
+        console.log('Грузим с ' + offset);
+        console.log('Грузим элементов ' + limit);
         this.marvelService.getAllCharacters(offset, limit)
             .then(this.loadedList)
             .catch(this.onError);
@@ -43,29 +53,27 @@ class CharList extends Component {
         let ended = false;
         if (newChars.length < this.state.limit) ended = true;
 
-        this.setState(({ charList, offset, limit }) => {
-            let offsetTo = localStorage.getItem('offsetTo') ? +localStorage.getItem('offsetTo') : offset;
-            localStorage.setItem('offsetTo', offsetTo + limit);
+        this.setState(({ charList, offsetNew, limit }) => {
+            localStorage.setItem('offsetNew', offsetNew + limit);
 
             return {
                 charList: [...charList, ...newChars],
                 loading: false,
                 loadingNew: false,
-                offset: offset + limit,
-                offsetTo: localStorage.getItem('offsetTo'),
+                offsetNew: +localStorage.getItem('offsetNew'),
                 ended: ended
             }
         });
     }
 
-    onLoad = () => {
+    onLoadNew = () => {
         this.setState({ loadingNew: true });
-        this.onRequest(this.state.offset);
+        this.onRequest(this.state.offsetNew);
     }
 
     onScrollEnd = () => {
         if (document.documentElement.scrollHeight === document.documentElement.clientHeight + window.pageYOffset) {
-            this.onRequest(this.state.offset);
+            this.onLoadNew();
         }
     }
 
@@ -104,7 +112,7 @@ class CharList extends Component {
         return (
             <div className="char__list">
                 {items || spinner || errorMessage}
-                <button className="button button__main button__long" style={{ 'display': ended ? 'none' : 'block' }} disabled={loadingNew} onClick={this.onLoad}>
+                <button className="button button__main button__long" style={{ 'display': ended ? 'none' : 'block' }} disabled={loadingNew} onClick={this.onLoadNew}>
                     <div className="inner">load more</div>
                 </button>
             </div>
