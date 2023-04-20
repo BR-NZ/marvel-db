@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import PropTypes from 'prop-types';
 import MarvelService from '../../services/MarvelServices';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Spinner from '../spinner/Spinner';
@@ -77,6 +78,16 @@ class CharList extends Component {
         }
     }
 
+    onItemClick = (id) => {
+        this.props.onCharSelected(id);
+        this.setState(({charList}) => {
+            const inactiveList = [...charList].map(item => ({...item, active: false}));
+            return {
+                charList: inactiveList.map(item => ({...item, active: (item.id === id)}))
+            }
+        });
+    }
+
     onError = () => {
         this.setState({
             error: true,
@@ -85,10 +96,10 @@ class CharList extends Component {
     }
 
     renderItems(arr) {
-        const items = arr.map(item => {
+        const items = arr.map((item, i) => {
             const clazz = item.active ? 'char__item_selected' : '';
             return (
-                <li className={`char__item ${clazz}`} onClick={() => this.props.onCharSelected(item.id)} key={item.id}>
+                <li className={`char__item ${clazz}`} onClick={() => this.onItemClick(item.id)} key={item.id} tabIndex={i}>
                     <img src={item.thumbnail} alt={item.name} />
                     <div className="char__name">{item.name}</div>
                 </li>
@@ -118,6 +129,10 @@ class CharList extends Component {
             </div>
         )
     }
+}
+
+CharList.propTypes = {
+    onCharSelected: PropTypes.func.isRequired,
 }
 
 export default CharList;

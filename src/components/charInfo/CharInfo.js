@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import PropTypes from 'prop-types';
 import MarvelService from '../../services/MarvelServices';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
@@ -72,7 +73,7 @@ class CharInfo extends Component {
 }
 
 const View = ({ char }) => {
-    const { name, description, thumbnail, homepage, wiki, comics } = char;
+    const { id, name, description, thumbnail, homepage, wiki, comics } = char;
     const comicsList = comics.map((item, i) => {
         // eslint-disable-next-line
         if (i > 10) return;
@@ -88,10 +89,10 @@ const View = ({ char }) => {
             <div className="char__basics">
                 <img src={thumbnail} alt={name} />
                 <div>
-                    <div className="char__info-name">{name}</div>
+                    <div className="char__info-name">{`${name} #${id}`}</div>
                     <div className="char__btns">
                         <a href={homepage} className="button button__main">
-                            <div className="inner">homepage</div>
+                            <div className="inner">Homepage</div>
                         </a>
                         <a href={wiki} className="button button__secondary">
                             <div className="inner">Wiki</div>
@@ -109,6 +110,14 @@ const View = ({ char }) => {
             </ul>
         </>
     )
+}
+
+CharInfo.propTypes = {
+    charId: PropTypes.number.isRequired,
+}
+
+CharInfo.defaultProps = {
+    charId: 1010338,
 }
 
 export default CharInfo;
