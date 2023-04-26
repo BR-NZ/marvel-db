@@ -1,110 +1,117 @@
-import { Component } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import MarvelService from '../../services/MarvelServices';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Spinner from '../spinner/Spinner';
 import './charList.scss';
 
-class CharList extends Component {
-    marvelService = new MarvelService()
+const CharList = (props) => {
+    const marvelService = new MarvelService()
 
-    state = {
-        charList: [],
-        loading: true,
-        loadingNew: false,
-        error: false,
-        offset: this.marvelService._baseOffset, // 1550 - end
-        offsetNew: localStorage.getItem('offsetNew') ? +localStorage.getItem('offsetNew') : this.marvelService._baseOffset,
-        limit: 9,
-        ended: false
-    }
+    const [charList, setCharList] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [loadingNew, setLoadingNew] = useState(false)
+    const [error, setError] = useState(false)
+    const [offset] = useState(marvelService._baseOffset) // 1550 - end
+    const [offsetNew, setOffsetNew] = useState(localStorage.getItem('offsetNew') ? +localStorage.getItem('offsetNew') : marvelService._baseOffset)
+    const [limit] = useState(9)
+    const [ended, setEnded] = useState(false)
 
-    componentDidMount() {
-        const { offset, limit } = this.state;
-
-        const offsetNew = localStorage.getItem('offsetNew') ? +localStorage.getItem('offsetNew') : offset;
+    useEffect(() => {
+        setOffsetNew(localStorage.getItem('offsetNew') ? +localStorage.getItem('offsetNew') : offset);
         const limitNew = (offsetNew - offset) ? (offsetNew - offset) : limit;
-        
-        console.log('Грузим с ' + this.state.offset);
+
+        console.log('Грузим с ' + offset);
         console.log('Грузим элементов ' + limitNew + ' ' + typeof limitNew);
 
-        this.onRequest(this.state.offset, limitNew);
-        window.addEventListener('scroll', this.onScrollEnd);
-    }
+        onRequest(offset, limitNew);
+        window.addEventListener('scroll', onScrollEnd);
 
-    componentWillUnmount() {
-        window.removeEventListener('scroll', this.onScrollEnd);
-    }
+        return () => {
+            window.removeEventListener('scroll', onScrollEnd);
+        }
+    }, [])
 
-    onRequest = async (offset, limit) => {
-        this.loadingList();
+    const onRequest = async (offset, limit) => {
+        loadingList();
         console.log('Грузим с ' + offset);
         console.log('Грузим элементов ' + limit);
-        this.marvelService.getAllCharacters(offset, limit)
-            .then(this.loadedList)
-            .catch(this.onError);
-    }
-    loadingList = () => {
-        this.setState({
-            loadingNew: true
-        });
+        marvelService.getAllCharacters(offset, limit)
+            .then(loadedList)
+            .catch(onError);
     }
 
-    loadedList = (newChars) => {
+    const loadingList = () => {
+        setLoadingNew(true);
+    }
+
+    const loadedList = (newChars) => {
         let ended = false;
-        if (newChars.length < this.state.limit) ended = true;
+        if (newChars.length < limit) ended = true;
 
-        this.setState(({ charList, offsetNew, limit }) => {
+        setCharList(charList => [...charList, ...newChars]);
+        setLoading(false);
+        setLoadingNew(false);
+        setEnded(ended);
+        setOffsetNew(offsetNew => {
             localStorage.setItem('offsetNew', offsetNew + limit);
-
-            return {
-                charList: [...charList, ...newChars],
-                loading: false,
-                loadingNew: false,
-                offsetNew: +localStorage.getItem('offsetNew'),
-                ended: ended
-            }
+            return +localStorage.getItem('offsetNew');
         });
     }
 
-    onLoadNew = () => {
-        this.setState({ loadingNew: true });
-        this.onRequest(this.state.offsetNew);
+    const onLoadNew = () => {
+        setLoadingNew(true);
+        onRequest(offsetNew);
     }
 
-    onScrollEnd = () => {
+    const onScrollEnd = () => {
         if (document.documentElement.scrollHeight === document.documentElement.clientHeight + window.pageYOffset) {
-            this.onLoadNew();
+            onLoadNew();
         }
     }
 
-    onItemClick = (id) => {
-        this.props.onCharSelected(id);
-        this.setState(({charList}) => {
-            const inactiveList = [...charList].map(item => ({...item, active: false}));
-            return {
-                charList: inactiveList.map(item => ({...item, active: (item.id === id)}))
-            }
+    const onItemClick = (id) => {
+        props.onCharSelected(id);
+        setCharList(charList => {
+            const inactiveList = [...charList].map(item => ({ ...item, active: false }));
+            return inactiveList.map(item => ({ ...item, active: (item.id === id) }));
         });
     }
 
-    onError = () => {
-        this.setState({
-            error: true,
-            loading: false
-        });
+    const onItemFocus = (i) => {
+        console.log('Фокус на: ');
+        console.log(itemsRefs.current[i]);
+        itemsRefs.current.forEach(item => item.classList.remove('char__item_selected'));
+        itemsRefs.current[i].classList.add('char__item_selected');
+        itemsRefs.current[i].focus();
     }
 
-    renderItems(arr) {
+    const onError = () => {
+        setError(true);
+        setLoading(false);
+    }
+
+    // Создаем реф с пустым массивом - массив попадет в реф.каррент
+    const itemsRefs = useRef([]);
+
+    function renderItems(arr) {
         const items = arr.map((item, i) => {
             const clazz = item.active ? 'char__item_selected' : '';
             return (
-                <li className={`char__item ${clazz}`} onClick={() => this.onItemClick(item.id)} key={item.id} tabIndex={i}>
+                <li id={item.id} 
+                    className={`char__item ${clazz}`} 
+                    onClick={() => onItemClick(item.id)} 
+                    onFocus={() => onItemFocus(i)} 
+                    key={item.id} 
+                    tabIndex={i} 
+                    ref={el => itemsRefs.current[i] = el}>
                     <img src={item.thumbnail} alt={item.name} />
                     <div className="char__name">{item.name}</div>
                 </li>
             );
         })
+
+        console.log(itemsRefs);
 
         return (
             <ul className="char__grid">
@@ -113,22 +120,18 @@ class CharList extends Component {
         )
     }
 
-    render() {
-        const { charList, loading, loadingNew, error, ended } = this.state;
+    const items = renderItems(charList);
+    const errorMessage = error ? <ErrorMessage /> : null;
+    const spinner = loading ? <Spinner /> : null;
 
-        const items = this.renderItems(charList);
-        const errorMessage = error ? <ErrorMessage /> : null;
-        const spinner = loading ? <Spinner /> : null;
-
-        return (
-            <div className="char__list">
-                {items || spinner || errorMessage}
-                <button className="button button__main button__long" style={{ 'display': ended ? 'none' : 'block' }} disabled={loadingNew} onClick={this.onLoadNew}>
-                    <div className="inner">load more</div>
-                </button>
-            </div>
-        )
-    }
+    return (
+        <div className="char__list">
+            {errorMessage || spinner || items}
+            <button className="button button__main button__long" style={{ 'display': ended ? 'none' : 'block' }} disabled={loadingNew} onClick={onLoadNew}>
+                <div className="inner">load more</div>
+            </button>
+        </div>
+    )
 }
 
 CharList.propTypes = {
