@@ -1,19 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import MarvelService from '../../services/MarvelServices';
+import useMarvelService from '../../services/MarvelServices';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Spinner from '../spinner/Spinner';
 import './charList.scss';
 
 const CharList = (props) => {
-    const marvelService = new MarvelService()
+    const {loading, error, _baseOffset, getAllCharacters} = useMarvelService()
 
     const [charList, setCharList] = useState([])
-    const [loading, setLoading] = useState(true)
     const [loadingNew, setLoadingNew] = useState(false)
-    const [error, setError] = useState(false)
     const [limit] = useState(9)
-    const [offset] = useState(marvelService._baseOffset) // from service = 210 (1550 - end)
+    const [offset] = useState(_baseOffset) // from service = 210 (1550 - end)
     const [offsetNew, setOffsetNew] = useState(localStorage.getItem('offsetNew') ? +localStorage.getItem('offsetNew') : offset + limit)
     const [ended, setEnded] = useState(false)
 
@@ -34,27 +32,21 @@ const CharList = (props) => {
         }
     }, [])
 
-    const onRequest = async (offset, limit, isLoadNew = false) => {
+    const onRequest = async (offset, limit, isLoadNew) => {
         console.log(`Грузим с: ${offset} (${typeof offset})`);
         console.log(`Элементов: ${limit} (${typeof limit})`);
         console.log(`Этот вызов: ${isLoadNew ? 'последующий' : 'начальный'}`);
 
-        loadingList();
+        isLoadNew ? setLoadingNew(true) : setLoadingNew(false);
 
-        marvelService.getAllCharacters(offset, limit)
-            .then(res => loadedList(res, isLoadNew))
-            .catch(onError);
-    }
-
-    const loadingList = () => {
-        setLoadingNew(true);
+        getAllCharacters(offset, limit)
+            .then(res => loadedList(res, isLoadNew));
     }
 
     const loadedList = (newChars, isLoadNew) => {
         let ended = (newChars.length < limit) ? true : false;
         
         setCharList(charList => [...charList, ...newChars]);
-        setLoading(false);
         setLoadingNew(false);
         setEnded(ended);
         if (isLoadNew) setOffsetNew(offsetNew => {
@@ -90,11 +82,6 @@ const CharList = (props) => {
         itemsRefs.current[i].focus();
     }
 
-    const onError = () => {
-        setError(true);
-        setLoading(false);
-    }
-
     // Создаем реф с пустым массивом - массив попадет в реф.каррент
     const itemsRefs = useRef([]);
 
@@ -114,9 +101,6 @@ const CharList = (props) => {
                 </li>
             );
         })
-
-        // console.log(itemsRefs);
-
         return (
             <ul className="char__grid">
                 {items}
@@ -126,7 +110,7 @@ const CharList = (props) => {
 
     const items = renderItems(charList);
     const errorMessage = error ? <ErrorMessage /> : null;
-    const spinner = loading ? <Spinner /> : null;
+    const spinner = loading && !loadingNew ? <Spinner /> : null;
 
     return (
         <div className="char__list">
