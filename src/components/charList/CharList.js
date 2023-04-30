@@ -12,32 +12,37 @@ const CharList = (props) => {
     const [loading, setLoading] = useState(true)
     const [loadingNew, setLoadingNew] = useState(false)
     const [error, setError] = useState(false)
-    const [offset] = useState(marvelService._baseOffset) // 1550 - end
-    const [offsetNew, setOffsetNew] = useState(localStorage.getItem('offsetNew') ? +localStorage.getItem('offsetNew') : marvelService._baseOffset)
     const [limit] = useState(9)
+    const [offset] = useState(marvelService._baseOffset) // from service = 210 (1550 - end)
+    const [offsetNew, setOffsetNew] = useState(localStorage.getItem('offsetNew') ? +localStorage.getItem('offsetNew') : offset + limit)
     const [ended, setEnded] = useState(false)
 
-    useEffect(() => {
-        setOffsetNew(localStorage.getItem('offsetNew') ? +localStorage.getItem('offsetNew') : offset);
-        const limitNew = (offsetNew - offset) ? (offsetNew - offset) : limit;
+    localStorage.setItem('offsetNew', offsetNew)
 
-        console.log('Грузим с ' + offset);
-        console.log('Грузим элементов ' + limitNew + ' ' + typeof limitNew);
+    useEffect(() => {
+        if(!localStorage.getItem('offsetNew')) {
+            localStorage.setItem('offsetNew', offset + limit);
+            setOffsetNew(+localStorage.getItem('offsetNew'));
+        }
+        const limitNew = offsetNew - offset;
 
         onRequest(offset, limitNew);
+        
         window.addEventListener('scroll', onScrollEnd);
-
         return () => {
             window.removeEventListener('scroll', onScrollEnd);
         }
     }, [])
 
-    const onRequest = async (offset, limit) => {
+    const onRequest = async (offset, limit, isLoadNew = false) => {
+        console.log(`Грузим с: ${offset} (${typeof offset})`);
+        console.log(`Элементов: ${limit} (${typeof limit})`);
+        console.log(`Этот вызов: ${isLoadNew ? 'последующий' : 'начальный'}`);
+
         loadingList();
-        console.log('Грузим с ' + offset);
-        console.log('Грузим элементов ' + limit);
+
         marvelService.getAllCharacters(offset, limit)
-            .then(loadedList)
+            .then(res => loadedList(res, isLoadNew))
             .catch(onError);
     }
 
@@ -45,15 +50,14 @@ const CharList = (props) => {
         setLoadingNew(true);
     }
 
-    const loadedList = (newChars) => {
-        let ended = false;
-        if (newChars.length < limit) ended = true;
-
+    const loadedList = (newChars, isLoadNew) => {
+        let ended = (newChars.length < limit) ? true : false;
+        
         setCharList(charList => [...charList, ...newChars]);
         setLoading(false);
         setLoadingNew(false);
         setEnded(ended);
-        setOffsetNew(offsetNew => {
+        if (isLoadNew) setOffsetNew(offsetNew => {
             localStorage.setItem('offsetNew', offsetNew + limit);
             return +localStorage.getItem('offsetNew');
         });
@@ -61,7 +65,7 @@ const CharList = (props) => {
 
     const onLoadNew = () => {
         setLoadingNew(true);
-        onRequest(offsetNew);
+        onRequest(+localStorage.getItem('offsetNew'), limit, true);
     }
 
     const onScrollEnd = () => {
@@ -79,8 +83,8 @@ const CharList = (props) => {
     }
 
     const onItemFocus = (i) => {
-        console.log('Фокус на: ');
-        console.log(itemsRefs.current[i]);
+        // console.log('Фокус на: ');
+        // console.log(itemsRefs.current[i]);
         itemsRefs.current.forEach(item => item.classList.remove('char__item_selected'));
         itemsRefs.current[i].classList.add('char__item_selected');
         itemsRefs.current[i].focus();
@@ -111,7 +115,7 @@ const CharList = (props) => {
             );
         })
 
-        console.log(itemsRefs);
+        // console.log(itemsRefs);
 
         return (
             <ul className="char__grid">

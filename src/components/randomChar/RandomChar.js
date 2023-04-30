@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import MarvelService from '../../services/MarvelServices';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
@@ -6,74 +6,62 @@ import ErrorMessage from '../errorMessage/ErrorMessage';
 import mjolnir from '../../resources/img/mjolnir.png';
 import './randomChar.scss';
 
-class RandomChar extends Component {
-    componentDidMount() {
-        this.updateChar();
-        this.intervalID = setInterval(this.updateChar, 6000000);
+const RandomChar = () => {
+    const [char, setChar] = useState({});
+    const [error, setError] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const marvelService = new MarvelService();
+
+    useEffect(() => {
+        updateChar();
+        const intervalID = setInterval(updateChar, 60000);
+        return () => {
+            clearInterval(intervalID);
+        }
+    }, [])
+
+    const onCharLoaded = (char) => {
+        setChar(char);
+        setError(false);
+        setLoading(false);
     }
 
-    componentWillUnmount() {
-        clearInterval(this.intervalID);
-    }
-
-    state = {
-        char: {},
-        error: false,
-        loading: true
-    }
-
-    marvelService = new MarvelService()
-
-    onCharLoaded = (char) => {
-        this.setState({
-            char: char,
-            error: false,
-            loading: false
-        });
-    }
-
-    updateChar = () => {
-        this.setState({ loading: true });
+    const updateChar = () => {
+        setLoading(true);
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
-        this.marvelService.getCharacter(id)
-            .then(this.onCharLoaded)
-            .catch(this.onError);
+        marvelService.getCharacter(id)
+            .then(onCharLoaded)
+            .catch(onError);
     }
 
-    onError = () => {
-        this.setState({
-            error: true,
-            loading: false
-        })
+    const onError = () => {
+        setError(true);
+        setLoading(false);
     }
 
-    render() {
-        const { char, error, loading } = this.state;
+    const errorMessage = error ? <ErrorMessage /> : null;
+    const spinner = loading ? <Spinner /> : null;
+    const content = !(error || loading) ? <View char={char} /> : null;
 
-        const errorMessage = error ? <ErrorMessage /> : null;
-        const spinner = loading ? <Spinner /> : null;
-        const content = !(error || loading) ? <View char={char} /> : null;
+    return (
+        <div className="randomchar">
+            {errorMessage || spinner || content}
 
-        return (
-            <div className="randomchar">
-                {errorMessage || spinner || content}
-
-                <div className="randomchar__static">
-                    <p className="randomchar__title">
-                        Random character for today!<br />
-                        Do you want to get to know him better?
-                    </p>
-                    <p className="randomchar__title">
-                        Or choose another one
-                    </p>
-                    <button className="button button__main" onClick={this.updateChar}>
-                        <div className="inner">try it</div>
-                    </button>
-                    <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />
-                </div>
+            <div className="randomchar__static">
+                <p className="randomchar__title">
+                    Random character for today!<br />
+                    Do you want to get to know him better?
+                </p>
+                <p className="randomchar__title">
+                    Or choose another one
+                </p>
+                <button className="button button__main" onClick={updateChar}>
+                    <div className="inner">try it</div>
+                </button>
+                <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />
             </div>
-        )
-    }
+        </div>
+    )
 }
 
 const View = ({ char }) => {
@@ -96,7 +84,7 @@ const View = ({ char }) => {
                 </p>
                 <div className="randomchar__btns">
                     <a href={homepage} className="button button__main">
-                        <div className="inner">homepage</div>
+                        <div className="inner">Homepage</div>
                     </a>
                     <a href={wiki} className="button button__secondary">
                         <div className="inner">Wiki</div>
