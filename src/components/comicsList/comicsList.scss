@@ -1,3 +1,5 @@
+@import '../../style/variables.scss';
+
 .comics {
     &__list {
         margin-top: 45px;
@@ -30,7 +32,11 @@
             text-transform: uppercase;
         }
         &:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
+        }
+        &_selected {
+            box-shadow: 0 5px 20px $main-color;
+            transform: translateY(-8px);
         }
     }
 }

@@ -44,11 +44,11 @@ const CharList = (props) => {
     }
 
     const loadedList = (newChars, isLoadNew) => {
-        let ended = (newChars.length < limit) ? true : false;
-        
-        setCharList(charList => [...charList, ...newChars]);
         setLoadingNew(false);
-        setEnded(ended);
+        setEnded(newChars.length < limit);
+
+        setCharList(charList => [...charList, ...newChars]);
+        
         if (isLoadNew) setOffsetNew(offsetNew => {
             localStorage.setItem('offsetNew', offsetNew + limit);
             return +localStorage.getItem('offsetNew');
@@ -68,10 +68,7 @@ const CharList = (props) => {
 
     const onItemClick = (id) => {
         props.onCharSelected(id);
-        setCharList(charList => {
-            const inactiveList = [...charList].map(item => ({ ...item, active: false }));
-            return inactiveList.map(item => ({ ...item, active: (item.id === id) }));
-        });
+        setCharList(charList => charList.map(item => ({ ...item, active: (item.id === id) })));
     }
 
     const onItemFocus = (i) => {
@@ -87,7 +84,7 @@ const CharList = (props) => {
 
     function renderItems(arr) {
         const items = arr.map((item, i) => {
-            const clazz = item.active ? 'char__item_selected' : '';
+            const clazz = item.active ? 'char__item_selected' : null;
             return (
                 <li id={item.id} 
                     className={`char__item ${clazz}`} 
