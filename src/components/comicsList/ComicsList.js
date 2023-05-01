@@ -50,7 +50,7 @@ const ComicsList = () => {
         const comics = items.map((item, i) => {
             const clazz = item.active ? 'comics__item_selected' : null;
             return (
-                <li className={"comics__item " + clazz} onClick={() => onItemClick(item.id)} onFocus={() => onItemFocus(i)} ref={el => itemsRefs.current[i] = el} key={item.id}>
+                <li className={"comics__item " + clazz} onClick={() => onItemClick(item.id)} onFocus={() => onItemFocus(i)} ref={el => itemsRefs.current[i] = el} key={i}>
                     <a href="#">
                         <img src={item.thumbnail} alt="ultimate war" className="comics__item-img" />
                         <div className="comics__item-name">{item.title}</div>
