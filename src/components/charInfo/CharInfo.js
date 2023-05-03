@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import useMarvelService from '../../services/MarvelServices';
 import Spinner from '../spinner/Spinner';
@@ -42,12 +43,19 @@ const CharInfo = (props) => {
 
 const View = ({ char }) => {
     const { id, name, description, thumbnail, homepage, wiki, comics } = char;
+
+    const _tranformURL = (url) => {
+        const _urlBase = '../comics/';
+        const id = url.match(/(-?\d+(\.\d+)?)/g).reverse()[0];
+        return _urlBase + id;
+    }
+    
     const comicsList = comics.map((item, i) => {
         // eslint-disable-next-line
         if (i > 10) return;
         return (
             <li className="char__comics-item" key={i}>
-                {item.name}
+                <Link to={`../${_tranformURL(item.resourceURI)}`}>{ item.name }</Link>
             </li>
         )
     })
