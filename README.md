@@ -8,6 +8,7 @@
 * React Router v6;
 * React Transition Group (компонент CharList);
 * SASS;
+* LocalStorage (компонент CharList);
 
 ## Примечание:
 `API-marvel` периодически дает сбои: неудачные фетчи, дублирует id героев или комиксов в своем ответе.. Отнеситесь с пониманием.

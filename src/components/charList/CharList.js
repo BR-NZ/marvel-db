@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Transition, TransitionGroup } from 'react-transition-group';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import useMarvelService from '../../services/MarvelServices';
 import ErrorMessage from '../errorMessage/ErrorMessage';
@@ -85,36 +85,23 @@ const CharList = (props) => {
 
     function renderItems(arr) {
         const duration = 550;
-        const defaultStyle = {
-            transitionProperty: 'opacity',
-            transitionDuration: `${duration}ms`,
-            opacity: 0,
-        };
-        const transitionStyles = {
-            entering: { opacity: 0.25 },
-            entered: { opacity: 1 },
-            exiting: { opacity: 0.75 },
-            exited: { opacity: 0 },
-        };
 
         const items = arr.map((item, i) => {
             const clazz = item.active ? 'char__item_selected' : '';
             return (
-                <Transition key={item.id} timeout={duration} appear>
-                    { state => (
-                        <li id={item.id} 
-                        className={`char__item ${clazz}`} 
-                        onClick={() => onItemClick(item.id)} 
-                        onFocus={() => onItemFocus(i)} 
-                        key={item.id} 
-                        tabIndex={i} 
-                        ref={el => itemsRefs.current[i] = el}
-                        style={ {...defaultStyle, ...transitionStyles[state], transitionDelay: `${i % 9 * 100}ms`} }>
-                            <img src={item.thumbnail} alt={item.name} />
-                            <div className="char__name">{item.name}</div>
-                        </li>
-                    ) }
-                </Transition>
+                <CSSTransition key={item.id} classNames="char-wrapper" timeout={duration} appear>
+                    <li id={item.id} 
+                    className={`char__item ${clazz}`} 
+                    onClick={() => onItemClick(item.id)} 
+                    onFocus={() => onItemFocus(i)} 
+                    key={item.id} 
+                    tabIndex={i} 
+                    ref={el => itemsRefs.current[i] = el}
+                    style={ {transitionDelay: `${i % 9 * 100}ms`, transitionDuration: `${duration}ms`} }>
+                        <img src={item.thumbnail} alt={item.name} />
+                        <div className="char__name">{item.name}</div>
+                    </li>
+                </CSSTransition>
                 
             );
         })

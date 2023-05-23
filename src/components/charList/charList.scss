@@ -32,8 +32,9 @@
             object-fit: fill;
         }
         &_selected {
+            position: relative;
+            top: -8px;
             box-shadow: 0 5px 20px $main-color;
-            transform: translateY(-8px);
         }
     }
     &__name {
@@ -42,5 +43,24 @@
         line-height: 29px;
         text-transform: uppercase;
         color: #fff;
+    }
+}
+
+.char-wrapper {
+    &-enter,
+    &-appear {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    &-enter-active,
+    &-appear-active{
+        opacity: 1;
+        transform: scale(0.9);
+        transition: all ease-in;
+    }
+    &-enter-done,
+    &-appear-done {
+        opacity: 1;
+        transform: scale(1);
     }
 }
