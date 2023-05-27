@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 
 const useHttp = () => {
     const [error, setError] = useState(false)
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
 
     const request = useCallback(async (url, method = 'GET', body = null, headers = {'Content-type': 'application/json'}) => {
         setLoading(true);
