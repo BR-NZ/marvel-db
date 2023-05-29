@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage as FormikErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Link } from 'react-router-dom';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 import useMarvelService from '../../services/MarvelServices';
 import ErrorMessage from '../errorMessage/ErrorMessage';
@@ -18,31 +19,30 @@ const CharSearchForm = () => {
 
     useEffect(() => {
         clearError();
+
+        if(prename.length < 2) {
+            setCharList([])
+            return;
+        }
+
         getCharacterByPrename(prename)
             .then(res => setCharList(res));
     }, [prename])
 
     const handleChange = (e) => {
+        // console.log(e.target.value);
         setPrename(e.target.value);
     };
 
     const handleFocus = (e) => {
-        if(e.target.name === 'name' || e.target.id === 'result-list') {
+        if(e.target.name === 'name') {
             setFocus(true);
-            console.log(e.target);
         }
     };
 
     const handleBlur = (e) => {
         if(e.target.name === 'name') {
-            setFocus(false);
-        }
-    }
-
-    const handleClick = (e) => {
-        if(e.target.id === 'result-list') {
-            setFocus(true);
-            console.log(e.target)
+            setTimeout(() => setFocus(false), 1000);
         }
     }
 
@@ -56,14 +56,16 @@ const CharSearchForm = () => {
 
     const resultList = (charList.length && focus) ? (
         <>
-            <div id="result-list" className="result-list">
-                {charList.map(item => (
-                    <Link to={`/characters/${item.id}`} className="result-list__item" key={item.id}>
-                        <img src={item.thumbnail} alt={item.name} />
-                        <p>{item.name}</p>
-                    </Link>
+            <TransitionGroup className="result-list">
+                {charList.map((item, i) => (
+                    <CSSTransition key={item.id} classNames="char-wrapper1" timeout={500} appear>
+                        <Link to={`/characters/${item.id}`} className="result-list__item" style={{transitionDuration: `${i * 100}ms`}}>
+                            <img src={item.thumbnail} alt={item.name} />
+                            <p>{item.name}</p>
+                        </Link>
+                    </CSSTransition>
                 ))}
-            </div>
+            </TransitionGroup>
             <div className="overlay"></div>
         </>
     ) : null;
@@ -93,15 +95,15 @@ const CharSearchForm = () => {
                 onSubmit={values => {
                     updateChar(values.name);
                 }}>
-                <Form onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur} onClick={handleClick}>
+                <Form onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur}>
                     <label className="char__search-label" htmlFor="name">Or find a character by name:</label>
                     <div className="char__search-wrapper">
                         <div id="input__wrapper" className="input__wrapper">
-                            <Field id="name" name="name" />
+                            <Field id="name" name="name" placeholder="Enter more than 2 letters.." />
                             {resultList}
                         </div>
                         <button type="submit" className="button button__main" disabled={loading}>
-                            <div className="inner">Find</div>
+                            <div className="inner">Find one</div>
                         </button>
                     </div>
 

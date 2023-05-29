@@ -98,4 +98,24 @@
     height: 100%;
     background-color: #000000;
     opacity: 0.55;
+    z-index: 900;
+}
+
+.char-wrapper1 {
+    &-enter,
+    &-appear {
+        opacity: 0;
+        transform: scaleY(0.6);
+    }
+    &-enter-active,
+    &-appear-active{
+        opacity: 1;
+        transform: scaleY(0.9);
+        transition: all ease-in;
+    }
+    &-enter-done,
+    &-appear-done {
+        opacity: 1;
+        transform: scaleY(1);
+    }
 }
