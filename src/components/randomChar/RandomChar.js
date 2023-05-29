@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import useMarvelService from '../../services/MarvelServices';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
@@ -61,7 +62,7 @@ const View = ({ char }) => {
                 prop : (prop.slice(0, maxLength) + '...');
     }
 
-    const { name, description, thumbnail, homepage, wiki } = char;
+    const { id, name, description, thumbnail, wiki } = char;
     const desc_v = isValidString(description, 200);
 
     return (
@@ -73,9 +74,9 @@ const View = ({ char }) => {
                     {desc_v}
                 </p>
                 <div className="randomchar__btns">
-                    <a href={homepage} className="button button__main">
+                    <Link to={`/characters/${id}`} className="button button__main">
                         <div className="inner">Homepage</div>
-                    </a>
+                    </Link>
                     <a href={wiki} className="button button__secondary">
                         <div className="inner">Wiki</div>
                     </a>

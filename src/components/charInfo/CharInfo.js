@@ -42,7 +42,7 @@ const CharInfo = (props) => {
 }
 
 const View = ({ char }) => {
-    const { id, name, description, thumbnail, homepage, wiki, comics } = char;
+    const { id, name, description, thumbnail, wiki, comics } = char;
 
     const _tranformURL = (url) => {
         const _urlBase = '../comics/';
@@ -67,9 +67,9 @@ const View = ({ char }) => {
                 <div>
                     <div className="char__info-name">{`${name} #${id}`}</div>
                     <div className="char__btns">
-                        <a href={homepage} className="button button__main">
+                        <Link to={`/characters/${id}`} className="button button__main">
                             <div className="inner">Homepage</div>
-                        </a>
+                        </Link>
                         <a href={wiki} className="button button__secondary">
                             <div className="inner">Wiki</div>
                         </a>

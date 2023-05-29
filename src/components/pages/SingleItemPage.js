@@ -3,28 +3,27 @@ import { useParams } from 'react-router-dom';
 import useMarvelService from '../../services/MarvelServices';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
+import AppBanner from '../appBanner/AppBanner';
 
 const SingleItemPage = ({Component, type}) => {
     const [item, setItem] = useState(null);
     
     // получили ID (URL-параметр от ROUTER)
-    const { itemId } = useParams();
+    const { id } = useParams();
     const { loading, error, getComics, getCharacterByID, clearError } = useMarvelService();
 
     const fetchMethod = (type === 'comics') ? getComics 
                       : (type === 'character') ? getCharacterByID : null;
 
     useEffect(() => {
-        console.log(itemId);
-        updateItem(itemId);
-    }, [itemId])
+        console.log(id);
+        updateItem(id);
+    }, [id])
 
     const updateItem = async (id) => {
         clearError();
         const result = await fetchMethod(id);
-        console.log(result);
         setItem(result);
-        console.log(item);
     }
     
     const spinner = loading ? <Spinner /> : null;
@@ -33,6 +32,7 @@ const SingleItemPage = ({Component, type}) => {
 
     return (
         <>
+            <AppBanner />
             {errorMessage || spinner || content}
         </>
     )

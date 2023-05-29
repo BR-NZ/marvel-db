@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import './SingleCharLayout.scss';
 
 const SingleCharLayout = ({ item }) => {
-    console.log(item);
     const { name, description, thumbnail } = item;
     return (
         <div className="single-item">

@@ -47,6 +47,15 @@ const useMarvelService = () => {
         return _transformCharacter(res.data.results[0]);
     }
 
+    const getCharacterByPrename = async (prename, limit = 7) => {
+        // https://gateway.marvel.com:443/v1/public/characters?nameStartsWith=th&apikey=01f15876ae27789f7db0371fd64cb559
+        if(prename) {
+            console.log(`${_apiBase}/characters?nameStartsWith=${prename}&limit=${limit}&apikey=${_apiKey}`);
+            const res = await request(`${_apiBase}/characters?nameStartsWith=${prename}&limit=${limit}&apikey=${_apiKey}`);
+            return res.data.results.map(_transformCharacter);
+        } else return [];
+    }
+
     const _transformCharacter = (person) => {
         return !person ? undefined : {
             name: person.name,
@@ -59,7 +68,7 @@ const useMarvelService = () => {
         }
     }
 
-    return { _baseOffset, loading, setLoading, error, clearError, getAllCharacters, getCharacterByID, getCharacterByName, getAllComics, getComics }
+    return { _baseOffset, loading, setLoading, error, clearError, getAllCharacters, getCharacterByID, getCharacterByName, getCharacterByPrename, getAllComics, getComics }
 }
 
 export default useMarvelService;

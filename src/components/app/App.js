@@ -1,9 +1,9 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import AppHeader from "../appHeader/AppHeader";
 import Spinner from '../spinner/Spinner';
 
-const MainPage = lazy(() => import('../pages/MainPage'));
+const CharsPage = lazy(() => import('../pages/CharsPage'));
 const ComicsPage = lazy(() => import('../pages/ComicsPage'));
 const SingleItemPage = lazy(() => import('../pages/SingleItemPage'));
 const SingleCharLayout = lazy(() => import('../pages/SingleCharLayout/SingleCharLayout'));
@@ -18,11 +18,12 @@ const App = () => {
                 <main>
                     <Suspense fallback={ <Spinner /> }>
                         <Routes>
-                            <Route path="/" element={<MainPage />} />
-                            <Route path="/characters/:itemId" element={<SingleItemPage Component={SingleCharLayout} type="character" />} />
+                            <Route path="/" element={<Navigate to="/characters" />} />
+                            <Route path="/characters" element={<CharsPage />} />
+                            <Route path="/characters/:id" element={<SingleItemPage Component={SingleCharLayout} type="character" />} />
                             <Route path="/comics" element={<ComicsPage />} />
-                            <Route path="/comics/:itemId" element={<SingleItemPage Component={SingleComicsLayout} type="comics" />} />
-                            <Route qpath="*" element={<Page404 />} />
+                            <Route path="/comics/:id" element={<SingleItemPage Component={SingleComicsLayout} type="comics" />} />
+                            <Route path="*" element={<Page404 />} />
                         </Routes>
                     </Suspense>
                 </main>
