@@ -2,11 +2,12 @@
 Учебный проект, использующий официальный `API-marvel`, который содержит информацию о персонажах и комиксах вселенной.
 
 ## Применялось: 
-* Javascript (до ES2022);
+* JS (ES2022);
 * Rest API (Fetch API);
 * React v18.20 (Class-components, Func-components + Hooks, React.Lazy);
 * React Router v6;
-* React Transition Group (компонент CharList);
+* React Helmet (SEO);
+* React Transition Group (компоненты CharList и CharSearchForm);
 * SASS;
 * LocalStorage (компонент CharList);
 
