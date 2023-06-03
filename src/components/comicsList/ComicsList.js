@@ -49,7 +49,7 @@ const ComicsList = () => {
 
     function renderItems(items) {
         const comics = items.map((item, i) => {
-            const clazz = item.active ? 'comics__item_selected' : null;
+            const clazz = item.active ? 'comics__item_selected' : '';
             return (
                 <li className={"comics__item " + clazz} onClick={() => onItemClick(item.id)} onFocus={() => onItemFocus(i)} ref={el => itemsRefs.current[i] = el} key={i}>
                     <Link to={`${item.id}`}>

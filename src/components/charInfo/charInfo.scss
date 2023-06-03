@@ -6,6 +6,8 @@
         box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25);
         position: relative;
         background-color: #fff;
+        border-radius: 11px;
+        overflow: hidden;
         &-name {
             font-weight: bold;
             font-size: 22px;

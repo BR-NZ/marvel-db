@@ -11,20 +11,25 @@
         row-gap: 55px;
     }
     &__item {
+        border-radius: 11px;
+        overflow: hidden;
         transition: 0.3s transform;
+        padding-bottom: 10px;
         &-img {
             box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.25);
             width: 225px;
             height: 345px;
+            border-radius: 11px;
         }
         &-name {
-            margin-top: 10px;
+            margin: 10px 10px;
+            margin-bottom: 5px;
             font-weight: bold;
             font-size: 14px;
             line-height: 18px;
         }
         &-price {
-            margin-top: 5px;
+            margin: 0px 10px;
             font-weight: bold;
             font-size: 14px;
             line-height: 18px;

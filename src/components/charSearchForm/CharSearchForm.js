@@ -14,6 +14,7 @@ const CharSearchForm = () => {
     const [char, setChar] = useState(null);
     const [charList, setCharList] = useState([]);
     const [focus, setFocus] = useState(false);
+    const duration = 200;
 
     const { loading, error, clearError, getCharacterByName, getCharacterByPrename } = useMarvelService();
 
@@ -42,7 +43,7 @@ const CharSearchForm = () => {
 
     const handleBlur = (e) => {
         if(e.target.name === 'name') {
-            setTimeout(() => setFocus(false), 1000);
+            setTimeout(() => setFocus(false), 500);
         }
     }
 
@@ -58,8 +59,10 @@ const CharSearchForm = () => {
         <>
             <TransitionGroup className="result-list">
                 {charList.map((item, i) => (
-                    <CSSTransition key={item.id} classNames="char-wrapper1" timeout={500} appear>
-                        <Link to={`/characters/${item.id}`} className="result-list__item" style={{transitionDuration: `${i * 100}ms`}}>
+                    <CSSTransition key={item.id} classNames="char-wrapper1" timeout={duration} appear>
+                        <Link to={`/characters/${item.id}`} 
+                            className="result-list__item" 
+                            style={{transitionDuration: `${duration}ms`, transitionDelay: `${i * 100}ms`}}>
                             <img src={item.thumbnail} alt={item.name} />
                             <p>{item.name}</p>
                         </Link>
