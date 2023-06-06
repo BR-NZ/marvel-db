@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import './SingleCharLayout.scss';
 
-const SingleCharLayout = ({ item }) => {
-    const { name, description, thumbnail } = item;
+const SingleCharLayout = ({ data }) => {
+    const { name, description, thumbnail } = data;
     return (
         <>
             <Helmet>

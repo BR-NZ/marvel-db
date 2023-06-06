@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useMarvelService from '../../services/MarvelServices';
-import Spinner from '../spinner/Spinner';
-import ErrorMessage from '../errorMessage/ErrorMessage';
+import setContent from '../../utils/setContent';
 
 import mjolnir from '../../resources/img/mjolnir.png';
 import './randomChar.scss';
 
 const RandomChar = () => {
     const [char, setChar] = useState({});
-    const {loading, error, getCharacterByID, clearError} = useMarvelService();
+    const {process, setProcess, getCharacterByID, clearError} = useMarvelService();
 
     useEffect(() => {
         updateChar();
@@ -19,24 +18,19 @@ const RandomChar = () => {
         }
     }, [])
 
-    const onCharLoaded = (char) => {
-        setChar(char);
-    }
+    const onCharLoaded = (char) => setChar(char)
 
     const updateChar = () => {
         clearError();
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
         getCharacterByID(id)
-            .then(onCharLoaded);
+            .then(onCharLoaded)
+            .then(() => setProcess('confirmed'));
     }
-
-    const errorMessage = error ? <ErrorMessage /> : null;
-    const spinner = loading ? <Spinner /> : null;
-    const content = !(error || loading) ? <View char={char} /> : null;
 
     return (
         <div className="randomchar">
-            {errorMessage || spinner || content}
+            { setContent(process, View, char) }
 
             <div className="randomchar__static">
                 <p className="randomchar__title">
@@ -55,14 +49,14 @@ const RandomChar = () => {
     )
 }
 
-const View = ({ char }) => {
+const View = ({ data }) => {
     const isValidString = (prop, maxLength) => {
         return (!prop || typeof prop != 'string') ?
             'no data' : (prop.length < maxLength) ?
                 prop : (prop.slice(0, maxLength) + '...');
     }
 
-    const { id, name, description, thumbnail, wiki } = char;
+    const { id, name, description, thumbnail, wiki } = data;
     const desc_v = isValidString(description, 200);
 
     return (

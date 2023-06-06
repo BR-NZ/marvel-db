@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import './SingleComicsLayout.scss';
 
-const SingleComicsLayout = ({ item }) => {
-    const { title, description, pageCount, language, price, thumbnail } = item;
+const SingleComicsLayout = ({ data }) => {
+    const { title, description, pageCount, language, price, thumbnail } = data;
     return (
         <>
             <Helmet>

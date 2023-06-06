@@ -99,7 +99,7 @@ const CharSearchForm = () => {
                     updateChar(values.name);
                 }}>
                 <Form onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur}>
-                    <label className="char__search-label" htmlFor="name">Or find a character by name:</label>
+                    <label className="char__search-label" htmlFor="name">Find a character by name:</label>
                     <div className="char__search-wrapper">
                         <div id="input__wrapper" className="input__wrapper">
                             <Field id="name" name="name" placeholder="Enter more than 2 letters.." />
